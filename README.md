@@ -45,5 +45,7 @@ QAQ
     QAQ.MMDialg.confirm('确认框',function(){//回调函数})
     QAQ.MMDialg.info('消息框','消息类型')  消息类型: 1 success 2 error 3 warning 4 message
 
-
+#显示loading#
+    QAQ.Loading.show('死命加载中...');
+    QAQ.Loading.hide();
  
