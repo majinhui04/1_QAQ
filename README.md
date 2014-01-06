@@ -1,6 +1,7 @@
-1_QAQ
+QAQ
 =====
-/*  普通环境下调用：
+#调用dialog#
+
     var dialog = new QAQ.Dialog({
         id          : '',//选填dialog的id
         cls         : '.x1 .x2',dialog的类
@@ -24,16 +25,19 @@
     //关闭
     dialog.close();
 
-    注 若模板是angularjs：
+#注:若模板中含有angularjs#
+
+
     var dialog = new QAQ.AADialog({
         compile:$compile//必填
         scope:$scope//必填
     });
 
-    //通用dialog
+#通用dialog#
+
     QAQ.MMDialg.alert('警告框')
     QAQ.MMDialg.confirm('确认框',function(){//回调函数})
     QAQ.MMDialg.info('消息框','消息类型')  消息类型: 1 success 2 error 3 warning 4 message
 
 
- */
+ 
