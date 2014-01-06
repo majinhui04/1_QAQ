@@ -1,5 +1,11 @@
 QAQ
 =====
+
+#文件路径#
+    <link rel="stylesheet" type="text/css" href="http://assets.haoyuyuan.com/vendor/plugins/igrow/sbdialog/style.css">
+
+    <script src="http://assets.haoyuyuan.com/vendor/plugins/igrow/sbdialog/sb-dialog-1.0.0.js" type="text/javascript"></script>
+
 #调用dialog#
 
     var dialog = new QAQ.Dialog({
@@ -27,7 +33,7 @@ QAQ
 
 #注:若模板中含有angularjs#
 
-
+    需要传入两个额外参数 $scope $compile
     var dialog = new QAQ.AADialog({
         compile:$compile//必填
         scope:$scope//必填
