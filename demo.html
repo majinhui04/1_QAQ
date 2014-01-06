@@ -22,13 +22,26 @@
     <button onclick="showDialog()">show dialog</button>
 </p>
 <p>
-    <h2>调用模板</h2>
-    <button onclick="showDialog()">show dialog</button>
+    <h2>alert</h2>
+    <button id="b1">alert</button>
+</p>
+<p>
+    <h2>message</h2>
+    <button id="b2">message</button>
 </p>
 <script type="text/javascript">
 window.onload = function(){
     var Dialog = QAQ.Dialog;
+    document.getElementById('b1').onclick = function(){
+           
+        QAQ.MMDialog.alert('alert');
+    }
+    document.getElementById('b2').onclick = function(){
+           
+        QAQ.MMDialog.info('lalallaa','message');
+    }
     window.showDialog=function(){
+
         var dialog = new Dialog({
             title:'我是标题君',
             content:'<p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p>',
@@ -37,6 +50,7 @@ window.onload = function(){
                     name  : '确定',
                     cls:'.bt_tip_hit',
                     click: function(){
+                        alert('我要关了')
                         this.close();
                         //do shomething
                     }

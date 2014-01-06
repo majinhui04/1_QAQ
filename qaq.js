@@ -502,17 +502,18 @@
             zIndex = window._dlgBaseDepth++;
             left =  Math.floor( (winWidth-width)*0.5 );
 
-            
+            console.log(1111111111,$element.clientHeight)
             $element.style.display = 'block';
-            $element.style.width = width+'px';
-            $element.style.left = left+'px';
-            $element.style.zIndex = zIndex;
+            
             if(contentHeight){
                 $($element).find('[data-role="content"]')[0].style.height = contentHeight + 'px';
             }
             
             //谷歌下不能立即获取scrollTop
             setTimeout(function(){
+                $element.style.width = width+'px';
+                $element.style.left = left+'px';
+                $element.style.zIndex = zIndex;
                 height =  $element.offsetHeight;
                 scrollTop = Math.max(document.documentElement.scrollTop,document.body.scrollTop)
                 //top = Math.floor( (winHeight-height)*0.45+scrollTop );//position:absolute
@@ -522,7 +523,7 @@
                 console.log('winHeight',winHeight,'height',height,'opts.height',opts.height)
                 console.log('top ',top)*/
                 
-            },30);
+            },100);
             
         },
         hide:function(){
