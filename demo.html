@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>QAQ</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <script type="text/javascript" src="libs/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="libs/angular-1.1.5.min.js"></script>
+    <script type="text/javascript" src="qaq.js"></script>
+    <style>
+    body,html{
+        height: 100%;
+    }
+    </style>
+</head>
+<body >
+       
+<h1>dialog</h1>
+<p>
+    <button onclick="showDialog()">show dialog</button>
+</p>
+<p>
+    <h2>调用模板</h2>
+    <button onclick="showDialog()">show dialog</button>
+</p>
+<script type="text/javascript">
+window.onload = function(){
+    var Dialog = QAQ.Dialog;
+    window.showDialog=function(){
+        var dialog = new Dialog({
+            title:'我是标题君',
+            content:'<p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p><p>我是内容君</p>',
+            buttons:[
+                {
+                    name  : '确定',
+                    cls:'.bt_tip_hit',
+                    click: function(){
+                        this.close();
+                        //do shomething
+                    }
+                },
+                {
+                    name  : '取消',
+                    cls:'.bt_tip_normal',
+                    click: function(){
+                        this.close();
+                    }
+                }
+            ]
+        });
+    }
+}
+    
+</script>
+
+</body>
+
+</html>
