@@ -29,9 +29,21 @@
     <h2>message</h2>
     <button id="b2">message</button>
 </p>
+<p>
+    <h2>loading</h2>
+    <button id="a1">显示loading</button><button id="a2">隐藏loading</button>
+</p>
 <script type="text/javascript">
 window.onload = function(){
     var Dialog = QAQ.Dialog;
+    document.getElementById('a1').onclick = function(){
+           
+        QAQ.Loading.show('死命加载中...');
+    }
+    document.getElementById('a2').onclick = function(){
+           
+        QAQ.Loading.hide();
+    }
     document.getElementById('b1').onclick = function(){
            
         QAQ.MMDialog.alert('alert');

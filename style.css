@@ -178,8 +178,8 @@ button.bt_tip_hit, button.bt_tip_normal, button.bt_tip_forbid {
 
 #sb-loading-box{
 	position: fixed;
-	left: 0;
-	right: 0;
+	left: -99999px;
+	top:-99999px;
 	display: none;
 	width: 146px;
 	height: 146px;
