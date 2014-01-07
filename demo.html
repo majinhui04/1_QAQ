@@ -17,25 +17,37 @@
 </head>
 <body >
        
-<h1>dialog</h1>
+<h1>对话框 dialog</h1>
 <p>
     <button onclick="showDialog()">show dialog</button>
 </p>
 <p>
-    <h2>alert</h2>
+    <h2>对话框 alert</h2>
     <button id="b1">alert</button>
 </p>
 <p>
-    <h2>message</h2>
-    <button id="b2">message</button>
+    <h2>对话框 confirm</h2>
+    <button id="b3">confirm</button>
+</p>
+<p>
+    <h2>对话框 消息   type:1 success 2 error 3 info 4 warning</h2>
+    <button id="b2">dialog message</button>
 </p>
 <p>
     <h2>loading</h2>
     <button id="a1">显示loading</button><button id="a2">隐藏loading</button>
 </p>
+<p>
+    <h2>消息提示 type:1 success 2 error 3 info 4 warning</h2>
+    <button id="m1">显示message</button>
+</p>
 <script type="text/javascript">
 window.onload = function(){
     var Dialog = QAQ.Dialog;
+    document.getElementById('m1').onclick = function(){
+           
+        QAQ.Message('5秒后我会一闪而过...','info');
+    }
     document.getElementById('a1').onclick = function(){
            
         QAQ.Loading.show('死命加载中...');
@@ -43,6 +55,12 @@ window.onload = function(){
     document.getElementById('a2').onclick = function(){
            
         QAQ.Loading.hide();
+    }
+    document.getElementById('b3').onclick = function(){
+           
+        QAQ.MMDialog.confirm('确认不要我了?',function(){
+            alert('你太狠心了')
+        });
     }
     document.getElementById('b1').onclick = function(){
            

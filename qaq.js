@@ -262,13 +262,13 @@
                         {
                             name  : '取消',
                             click: function(){
-                                this.hide();
+                                this.close();
                             }
                         },
                         {
                             name     : '确定',
                             click: function(){
-                                this.hide();
+                                this.close();
                             }
                         }
                     ]*/
@@ -502,9 +502,9 @@
             zIndex = window._dlgBaseDepth++;
             left =  Math.floor( (winWidth-width)*0.5 );
 
-            console.log(1111111111,$element.clientHeight)
-            $element.style.display = 'block';
             
+            $element.style.display = 'block';
+           
             if(contentHeight){
                 $($element).find('[data-role="content"]')[0].style.height = contentHeight + 'px';
             }
@@ -523,7 +523,7 @@
                 console.log('winHeight',winHeight,'height',height,'opts.height',opts.height)
                 console.log('top ',top)*/
                 
-            },100);
+            },50);
             
         },
         hide:function(){
@@ -606,7 +606,7 @@
                         name  : '确定',
                         cls:'.bt_tip_hit',
                         click: function(){
-                            this.hide();
+                            this.close();
                         }
                     }
                 ]
@@ -617,7 +617,7 @@
         confirm:function(msg,callback){
             var ret = false;
             var msg = msg || '';
-            var content = '<div class="sb-alert-box">'+msg+'</div>';
+            var content = '<div class="sb-confirm-box"><span class="sb-confirm-icon"></span>'+msg+'</div>';
             var options = {
                 title:'确认框',
                 content:content,
@@ -626,7 +626,7 @@
                         name  : '确定',
                         cls:'.bt_tip_hit',
                         click: function(){
-                            this.hide();
+                            this.close();
                             callback && callback();
                         }
                     },
@@ -634,7 +634,7 @@
                         name  : '取消',
                         cls:'.bt_tip_normal',
                         click: function(){
-                            this.hide();
+                            this.close();
                         }
                     }
                 ]
@@ -676,7 +676,7 @@
                         name  : '确定',
                         cls:'.bt_tip_hit',
                         click: function(){
-                            this.hide();
+                            this.close();
                         }
                     }
                 ]
@@ -708,7 +708,7 @@
                 
             },30);
     }
-    // 146 * 146
+    // 146 * 146 加载中
     var Loading = {
 
         show:function(msg){
@@ -725,6 +725,48 @@
             $('#sb-loading-box').remove();
         }
     };
+    /*
+    <div class="toast-bottom-full-width" id="toast-container">
+        <div style="" class="toast toast-info">
+            <div class="toast-message">用户信息暂无变更</div>
+        </div>
+    </div>
+
+     */
+    //
+    //消息提示 msgtype: 1 success 2 error 3 warning 4 info
+    function AMessage(msg,msgtype) {
+        var timeStamp = new Date().valueOf();
+        var id = 'toast-'+timeStamp;
+        var msg = msg || '',msgtype = msgtype || 'info',interval = 5000,content;
+        var messageWrapTpl = '<div class="toast-top-full-width" id="toast-container"></div>';
+        var messageTpl = '<div style="" class="toast toast-{_msgtype_}" id="{_id_}" > <div class="toast-message">{_message_}</div> </div>';
+        var $container;
+
+        //
+        if( $('#toast-container').length>0 ){
+            $container = $('#toast-container');
+        }else{
+            $container = $(messageWrapTpl).appendTo('body');
+        }
+        content = substitute( messageTpl,{ _message_:msg,_id_:id,_msgtype_:msgtype} );
+        $container.append(content);
+
+        (function(id,interval){
+           
+            var timer = setTimeout(function(){
+               
+                $('#'+id).fadeOut(600,function(){
+                    if( $('#toast-container .toast:visible').length == 0 ){
+                        $('#toast-container').remove();
+                    }
+                 });
+
+            }, interval);
+        })(id,interval);
+            
+    };
+
 
 
     function QAQ(){
@@ -736,6 +778,7 @@
     QAQ.AADialog = AADialog;
     QAQ.MMDialog = MMDialog;
     QAQ.Loading = Loading;
+    QAQ.Message = AMessage;
 
 
     window['QAQ'] = QAQ;
