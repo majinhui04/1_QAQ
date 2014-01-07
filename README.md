@@ -2,9 +2,9 @@ QAQ
 =====
 
 #文件路径#
-    <link rel="stylesheet" type="text/css" href="http://assets.haoyuyuan.com/vendor/plugins/igrow/sbdialog/style.css">
+    <link rel="stylesheet" type="text/css" href="http://assets.haoyuyuan.com/vendor/plugins/igrow/qaq/style.css">
 
-    <script src="http://assets.haoyuyuan.com/vendor/plugins/igrow/sbdialog/sb-dialog-1.0.0.js" type="text/javascript"></script>
+    <script src="http://assets.haoyuyuan.com/vendor/plugins/igrow/qaq/qaq.js" type="text/javascript"></script>
 
 #调用dialog#
 
