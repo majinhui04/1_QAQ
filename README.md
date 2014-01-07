@@ -48,4 +48,8 @@ QAQ
 #显示loading#
     QAQ.Loading.show('死命加载中...');
     QAQ.Loading.hide();
+
+#消息提示#
+    QAQ.Message('5秒后自动消失...','info');// 1 success 2 error 3 info 4 warning
+ 
  
