@@ -37,7 +37,46 @@
  */
 
 (function(){
-    
+    //返回Url 参数对象 http://xxx.com?a=1&b=2 return {a:1,b:2}
+    var getUrlParams = function(){
+        var href = location.href;
+        var arr = href.split('?');
+        var result = {};
+
+        if(!arr[1]){
+            return {};
+        }
+        //['aa=1','bb=2']
+        var paramsArr = arr[1].split('&');
+        for(var i = 0;i<paramsArr.length;i++){
+            var aa = paramsArr[i].split('=');
+            result[ aa[0] ] = aa[1];
+        }
+
+        return result;
+
+    };
+    var iTemplate = (function(){
+        var template = function(){};
+        template.prototype = {
+            makeList: function(tpl, arr, fn){
+                var res = [], $10 = [], reg = /{(.+?)}/g, json2 = {}, index = 0;
+                for(var el = 0;el<arr.length;el++){
+                    if(typeof fn === "function"){
+                        json2 = fn.call(this, el, arr[el], index++)||{};
+                    }
+                    res.push(
+                         tpl.replace(reg, function($1, $2){
+                            return ($2 in json2)? json2[$2]: (undefined === arr[el][$2]? '':arr[el][$2]);
+                        })
+                    );
+                }
+                return res.join('');
+            }
+        }
+        return new template();
+    })();
+
     var MCache = (function() {
         var a = {};
             return {
@@ -98,6 +137,7 @@
     };
 
     function removeEventHandler(oTarget, sEventType, fnHandler) {
+        //console.log(oTarget.id,oTarget, sEventType, fnHandler)
         if (oTarget.removeEventListener) {
             oTarget.removeEventListener(sEventType, fnHandler, false);
         } else if (oTarget.detachEvent) {
@@ -184,7 +224,7 @@
             var content = this.opts.content,contentUrl = this.opts.contentUrl,contentSelector = this.opts.contentSelector;
             var deferred = $.Deferred(),tpl;
             var $element = this.$element;
-            
+           
             if(typeof content!='undefined' && content!=''){
                 setTimeout(function(){
                     deferred.resolve(content);
@@ -210,8 +250,11 @@
                     })
                     .done(function(result) {
                         //console.log("success",result);
-                        MCache.set(contentUrl,result)
-                        deferred.resolve(result);
+                        MCache.set(contentUrl,result);
+                        setTimeout(function(){
+                            deferred.resolve(result);
+                        }, 10);
+                       
                     })
                     .fail(function() {
                         //console.log("error");
@@ -226,11 +269,17 @@
 
             }else if(typeof contentSelector!='undefined'){
                 tpl = $(contentSelector).html();
-               
-                deferred.resolve(tpl);
+                
+                setTimeout(function(){
+                    deferred.resolve(tpl);
+                }, 30)
+                //deferred.resolve(tpl);
 
             }else{
-                deferred.reject('获取内容失败');
+                setTimeout(function(){
+                    deferred.reject('获取内容失败');
+                }, 30);
+                
             }
 
                 
@@ -244,7 +293,7 @@
             var timeStamp = new Date().valueOf();
             var defaults = this.defaults = {
                 id:'dialog_'+timeStamp,
-                backdrop:true,//'static' for a backdrop which doesn't close the modal on click.
+                backdrop:false,//'static' for a backdrop which doesn't close the modal on click.
                 keyboard:true,//Closes the modal when escape key is pressed
                 title      : "对话框",
                 close      : true,//关闭按钮
@@ -312,10 +361,11 @@
             var modalTpl = this.modalTpl;
             var height = $('body')[0].clientHeight;
 
-            $("body")[0].insertAdjacentHTML("beforeEnd", modalTpl);
-            $(".sb_dialog_modal")[0].style.height = height+'px';
-
+            //$("body")[0].insertAdjacentHTML("beforeEnd", modalTpl);
+            $("body").append(modalTpl);
+            
             this.$modal = $('div[data-role="modal"]')[0];
+            this.$modal.style.height = height+'px';
         },
         bindKeyboard:function(){
             var keyboard = this.opts.keyboard;
@@ -323,6 +373,8 @@
             this._bindKeyboard = BindAsEventListener(this,function(event){
                 var e = event ? event : window.event; 
                 var keyCode = e.which ? e.which : e.keyCode;     //获取按键值
+                //console.log('keyCode:'+keyCode)
+                //console.dir(e)
                 if(keyCode === 27 ){
                     this.close();
                 }
@@ -392,7 +444,11 @@
             var self=this,opts = this.opts,id=opts.id,$element = this.$element;
 
             this._close = BindAsEventListener(this,this.close);
-            addEventHandler( $($element).find('[data-role="close"]')[0],'click',this._close);
+            //addEventHandler( $($element).find('[data-role="close"]')[0],'click',this._close);
+
+            $($element).delegate('[data-role="close"]', 'click', function(event) {
+                self.close();
+            });
             
         },
         //浏览器缩放重新定位
@@ -465,8 +521,8 @@
         renderDialog:function(){
             //console.log(2222222222,this.opts)
             var html = this.getDialogHtml();
-            $("body")[0].insertAdjacentHTML("beforeEnd", html);
-
+            //$("body")[0].insertAdjacentHTML("beforeEnd", html);
+            $("body").append(html);
             this.$element = $('#'+this.opts.id)[0];
             this.getContentHtml();
 
@@ -549,8 +605,14 @@
         },
         removeEventListeners:function(){
             var self = this;
-            removeEventHandler(document,'keydown',this._bindKeyboard);
-            removeEventHandler(window,'resize',this._onWindowResize);
+            if(this.opts.keyboard){
+                removeEventHandler(document,'keydown',this._bindKeyboard);
+            }
+            if(this.opts.winResize){
+                removeEventHandler(window,'resize',this._onWindowResize);
+            }
+            //removeEventHandler(document,'keydown',this._bindKeyboard);
+            //removeEventHandler(window,'resize',this._onWindowResize);
         }
     };
 
@@ -588,7 +650,7 @@
         $($element).find('[data-role="content"]').html(node);
         $scope.$apply();
     };
-    window['AADialog'] = AADialog;
+    //window['AADialog'] = AADialog;
 
     //
     //
@@ -614,7 +676,8 @@
 
             new Dialog(options);
         },
-        confirm:function(msg,callback){
+        confirm:function(msg,callback,params){
+            var params = params || {};
             var ret = false;
             var msg = msg || '';
             var content = '<div class="sb-confirm-box"><span class="sb-confirm-icon"></span>'+msg+'</div>';
@@ -639,7 +702,12 @@
                     }
                 ]
             };
-
+            if(params.id){
+                options.id = params.id;
+            }
+            if(params.cls){
+                options.cls = params.cls;
+            }
             new Dialog(options);
             
         },
@@ -766,6 +834,24 @@
         })(id,interval);
             
     };
+    AMessage.show = function(){
+        AMessage.apply(null,arguments);
+    };
+    AMessage.hide = function(){
+        $('#toast-container').remove();
+    };
+
+    ScreenMask =  {
+        show : function (selector) {
+            var tpl = '<div class="screen-mask" ><span></span></div>';
+            this.hide();
+            jQuery(selector).append($(tpl));
+            
+        },
+        hide : function (selector) {
+            jQuery(selector).find('.screen-mask').remove();
+        }
+    }
 
 
 
@@ -773,6 +859,10 @@
 
     }
 
+    QAQ.ScreenMask = ScreenMask;
+    QAQ.iTemplate = iTemplate;
+    QAQ.getUrlParams = getUrlParams;
+    QAQ.substitute = substitute;
     QAQ.extendClass = extendClass;
     QAQ.Dialog = Dialog;
     QAQ.AADialog = AADialog;
@@ -783,4 +873,301 @@
 
     window['QAQ'] = QAQ;
    
+})();
+
+
+/**
+ * This jQuery plugin displays pagination links inside the selected elements.
+ *
+ * @author Gabriel Birke (birke *at* d-scribe *dot* de)
+ * @version 1.2
+ * @param {int} maxentries Number of entries to paginate
+ * @param {Object} opts Several options (see README for documentation)
+ * @return {Object} jQuery Object
+ */
+(function(){
+    //maxentries 记录总数  opts.$scope
+   jQuery.fn.pagination = function(maxentries, opts){
+        opts = jQuery.extend({
+            items_per_page:10,//每页记录数目
+            num_display_entries:10,//页码显示数
+            current_page:0,
+            num_edge_entries:2,//边界页码显示数
+            link_to:"javascript:;",
+            prev_text:"上一页",
+            next_text:"下一页",
+            ellipse_text:"...",
+            prev_show_always:true,
+            next_show_always:true,
+            callback:function(page){
+                return false;
+            }
+        },opts||{});
+        
+        return this.each(function() {
+          
+            /**
+             * Calculate the maximum number of pages
+             */
+            function numPages() {
+                return Math.ceil(maxentries/opts.items_per_page);
+            }
+            
+            /**
+             * Calculate start and end point of pagination links depending on 
+             * current_page and num_display_entries.
+             * @return {Array}
+             */
+            function getInterval()  {
+                var ne_half = Math.ceil(opts.num_display_entries/2);
+                var np = numPages();
+                var upper_limit = np-opts.num_display_entries;
+                var start = current_page>ne_half?Math.max(Math.min(current_page-ne_half, upper_limit), 0):0;
+                var end = current_page>ne_half?Math.min(current_page+ne_half, np):Math.min(opts.num_display_entries, np);
+                return [start,end];
+            }
+            
+            /**
+             * This is the event handling function for the pagination links. 
+             * @param {int} page_id The new page number
+             */
+            function pageSelected(page_id, evt){
+                current_page = page_id;
+                drawLinks();
+                /*--------------------majinhui-----------------------*/
+                if(opts.$scope){
+                    setTimeout(function(){
+                        opts.$scope.$apply(function(){
+                            opts.callback(page_id)
+                        });
+                    }, 10);
+                        
+                }else{
+                    opts.callback(page_id);
+                }
+                    
+     
+                return;
+                var continuePropagation = opts.callback(page_id, panel);
+                if (!continuePropagation) {
+                    if (evt.stopPropagation) {
+                        evt.stopPropagation();
+                    }
+                    else {
+                        evt.cancelBubble = true;
+                    }
+                }
+                return continuePropagation;
+            }
+            
+            /**
+             * This function inserts the pagination links into the container element
+             */
+            function drawLinks() {
+                panel.empty();
+                var interval = getInterval();
+                var np = numPages();
+                // This helper function returns a handler function that calls pageSelected with the right page_id
+                var getClickHandler = function(page_id) {
+                    return function(evt){ return pageSelected(page_id,evt); }
+                }
+                // Helper function for generating a single link (or a span tag if it's the current page)
+                var appendItem = function(page_id, appendopts){
+                    page_id = page_id<0?0:(page_id<np?page_id:np-1); // Normalize page id to sane value
+                    appendopts = jQuery.extend({text:page_id+1, classes:""}, appendopts||{});
+                    type = appendopts.type;
+                    //假如是当前页
+                    if(page_id == current_page ){
+                        if('prev' == type || 'next' == type){
+                            var lnk = jQuery("<li class='disabled'><a  href='javascript:;'>"+(appendopts.text)+"</a></li>");
+                        }else{
+                            var lnk = jQuery("<li class='active'><a  href='javascript:;'>"+(appendopts.text)+"</a></li>");
+                        }
+                            
+                    }
+                    else
+                    {
+                        var lnk = jQuery("<li><a href='javascript:;'>"+(appendopts.text)+"</a></li>")
+                            .bind("click", getClickHandler(page_id))
+                            .attr('href', opts.link_to.replace(/__id__/,page_id));
+                            
+                            
+                    }
+                    if(appendopts.classes){lnk.addClass(appendopts.classes);}
+                    panel.append(lnk);
+                }
+                // Generate "Previous"-Link
+                if(opts.prev_text && (current_page > 0 || opts.prev_show_always)){
+                    appendItem(current_page-1,{text:opts.prev_text, classes:"prev",type:'prev'});
+                }
+                // Generate starting points
+                if (interval[0] > 0 && opts.num_edge_entries > 0)
+                {
+                    var end = Math.min(opts.num_edge_entries, interval[0]);
+                    for(var i=0; i<end; i++) {
+                        appendItem(i);
+                    }
+                    if(opts.num_edge_entries < interval[0] && opts.ellipse_text)
+                    {
+                        jQuery("<li><span>"+opts.ellipse_text+"</span></li>").appendTo(panel);
+                    }
+                }
+                // Generate interval links
+                for(var i=interval[0]; i<interval[1]; i++) {
+                    appendItem(i);
+                }
+                // Generate ending points
+                if (interval[1] < np && opts.num_edge_entries > 0)
+                {
+                    if(np-opts.num_edge_entries > interval[1]&& opts.ellipse_text)
+                    {
+                        jQuery("<li><span>"+opts.ellipse_text+"</span></li>").appendTo(panel);
+                    }
+                    var begin = Math.max(np-opts.num_edge_entries, interval[1]);
+                    for(var i=begin; i<np; i++) {
+                        appendItem(i);
+                    }
+                    
+                }
+                // Generate "Next"-Link
+                if(opts.next_text && (current_page < np-1 || opts.next_show_always)){
+                    appendItem(current_page+1,{text:opts.next_text, classes:"next",type:'next'});
+                }
+            }
+            
+            // Extract current_page from options
+            var current_page = opts.current_page;
+            // Create a sane value for maxentries and items_per_page
+            maxentries = (!maxentries || maxentries < 0)?1:maxentries;
+            opts.items_per_page = (!opts.items_per_page || opts.items_per_page < 0)?1:opts.items_per_page;
+            // Store DOM element for easy access from all inner functions
+            if(jQuery(this).find('ul').length>0){
+                var panel = jQuery(this).find('ul');
+            }else{
+                var panel = jQuery('<ul class="qaq-pagination pagination"></ul>').appendTo( jQuery(this) );
+            }
+            
+            
+            // Attach control functions to the DOM element 
+            this.selectPage = function(page_id){ pageSelected(page_id);}
+            this.prevPage = function(){ 
+                if (current_page > 0) {
+                    pageSelected(current_page - 1);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            this.nextPage = function(){ 
+                if(current_page < numPages()-1) {
+                    pageSelected(current_page+1);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            // When all initialisation is done, draw the links
+            drawLinks();
+            jQuery(this).attr('data-pagination',true);
+            //console.log(1111111,this,jQuery(this).data())
+
+            // call callback function
+            //opts.callback(current_page, this);
+        });
+    } 
+})();
+
+/*ScrollTo*/
+(function(){
+    var intval = function (v)
+    {
+        v = parseInt(v);
+        return isNaN(v) ? 0 : v;
+    };
+    var getPos = function (e)
+    {
+        var l = 0;
+        var t  = 0;
+        var w = intval(jQuery.css(e,'width'));
+        var h = intval(jQuery.css(e,'height'));
+        var wb = e.offsetWidth;
+        var hb = e.offsetHeight;
+        while (e.offsetParent){
+            l += e.offsetLeft + (e.currentStyle?intval(e.currentStyle.borderLeftWidth):0);
+            t += e.offsetTop  + (e.currentStyle?intval(e.currentStyle.borderTopWidth):0);
+            e = e.offsetParent;
+        }
+        l += e.offsetLeft + (e.currentStyle?intval(e.currentStyle.borderLeftWidth):0);
+        t  += e.offsetTop  + (e.currentStyle?intval(e.currentStyle.borderTopWidth):0);
+        return {x:l, y:t, w:w, h:h, wb:wb, hb:hb};
+    };
+    var getClient = function(e)
+    {
+        if (e) {
+            w = e.clientWidth;
+            h = e.clientHeight;
+        } else {
+            w = (window.innerWidth) ? window.innerWidth : (document.documentElement && document.documentElement.clientWidth) ? document.documentElement.clientWidth : document.body.offsetWidth;
+            h = (window.innerHeight) ? window.innerHeight : (document.documentElement && document.documentElement.clientHeight) ? document.documentElement.clientHeight : document.body.offsetHeight;
+        }
+        return {w:w,h:h};
+    };
+    var getScroll = function (e) 
+    {
+        if (e) {
+            t = e.scrollTop;
+            l = e.scrollLeft;
+            w = e.scrollWidth;
+            h = e.scrollHeight;
+        } else  {
+            if (document.documentElement && document.documentElement.scrollTop) {
+                t = document.documentElement.scrollTop;
+                l = document.documentElement.scrollLeft;
+                w = document.documentElement.scrollWidth;
+                h = document.documentElement.scrollHeight;
+            } else if (document.body) {
+                t = document.body.scrollTop;
+                l = document.body.scrollLeft;
+                w = document.body.scrollWidth;
+                h = document.body.scrollHeight;
+            }
+        }
+        return { t: t, l: l, w: w, h: h };
+    };
+    
+    jQuery.fn.ScrollTo = function(s) {
+        o = jQuery.speed(s);
+        return this.each(function(){
+            new ScrollTo(this, o);
+        });
+    };
+    var ScrollTo = function (e, o)
+    {
+        var z = this;
+        z.o = o;
+        z.e = e;
+        z.p = getPos(e);
+        z.s = getScroll();
+
+        //console.log(z.p,z.s)
+        z.clear = function(){clearInterval(z.timer);z.timer=null};
+        z.t=(new Date).getTime();
+        z.step = function(){
+            var t = (new Date).getTime();
+            var p = (t - z.t) / z.o.duration;
+            if (t >= z.o.duration+z.t) {
+                z.clear();
+                setTimeout(function(){z.scroll(z.p.y, z.p.x)},13);
+            } else {
+                st = ((-Math.cos(p*Math.PI)/2) + 0.5) * (z.p.y-z.s.t) + z.s.t;
+                sl = ((-Math.cos(p*Math.PI)/2) + 0.5) * (z.p.x-z.s.l) + z.s.l;
+                z.scroll(st, sl);
+            }
+        };
+        z.scroll = function (t, l){window.scrollTo(l, t)};
+        z.timer=setInterval(function(){z.step();},13);
+    };
+
 })();
