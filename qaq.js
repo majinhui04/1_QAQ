@@ -305,7 +305,8 @@
                 renderTo     : 'body',
                 destroy:true,
                 header:true,//显示头部
-                winResize:false//浏览器缩放时要不要重新定位
+                winResize:false,//浏览器缩放时要不要重新定位
+                success:function(){}
               /*  buttons     : 
                      [
                         {
@@ -470,6 +471,8 @@
 
                 self.renderContent(content);
                 self.initPosition();
+                console.log('success',self.opts.success)
+                self.opts.success && self.opts.success();
 
             }).fail(function(msg){
                 self.showErrorMsg(msg);
@@ -843,13 +846,17 @@
 
     ScreenMask =  {
         show : function (selector) {
-            var tpl = '<div class="screen-mask" ><span></span></div>';
+	    var selector = selector || 'body';
+            var tpl = '<div class="qaq-screen-mask" ><span></span></div>';
             this.hide();
-            jQuery(selector).append($(tpl));
+	    jQuery(selector).eq(0).append($(tpl));
+            
             
         },
         hide : function (selector) {
-            jQuery(selector).find('.screen-mask').remove();
+	    var selector = selector || 'body';
+	    jQuery(selector).find('.qaq-screen-mask').remove();
+            
         }
     }
 

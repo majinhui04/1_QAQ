@@ -133,7 +133,7 @@ button.bt_tip_hit, button.bt_tip_normal, button.bt_tip_forbid {
 	display: block;
 	width: 100%;
 	height: 100%;
-	cursor:normal;
+	cursor:default;
 }
 
 /**/
@@ -301,12 +301,16 @@ button.bt_tip_hit, button.bt_tip_normal, button.bt_tip_forbid {
 	display: inline-block;
 	padding: 2px 6px;
 	margin-right: 5px;
+	cursor: pointer;
+}
+.qaq-pagination .disabled a{
+	cursor:default;
 }
 
 /**/
 .qaq-screen-mask {
 	z-index: 9998;
-	position: absolute;
+	position: fixed;
 	left: 0;
 	top: 0;
 	bottom: 0;
