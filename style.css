@@ -1,5 +1,6 @@
 .sb_dialog_layer {
-	display: none;
+	opacity: 0;
+	filter:alpha(opacity=0);
 	position: fixed;
 	_position: absolute;
 	width: 400px;

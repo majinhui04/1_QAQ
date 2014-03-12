@@ -37,7 +37,20 @@
  */
 
 (function(){
+    // 返回对象宽 高
+    var getClient = function(e)
+    {
+        if (e) {
+            w = e.clientWidth;
+            h = e.clientHeight;
+        } else {
+            w = (window.innerWidth) ? window.innerWidth : (document.documentElement && document.documentElement.clientWidth) ? document.documentElement.clientWidth : document.body.offsetWidth;
+            h = (window.innerHeight) ? window.innerHeight : (document.documentElement && document.documentElement.clientHeight) ? document.documentElement.clientHeight : document.body.offsetHeight;
+        }
+        return {w:w,h:h};
+    };
     //返回Url 参数对象 http://xxx.com?a=1&b=2 return {a:1,b:2}
+    
     var getUrlParams = function(){
         var href = location.href;
         var arr = href.split('?');
@@ -76,7 +89,6 @@
         }
         return new template();
     })();
-
     var MCache = (function() {
         var a = {};
             return {
@@ -360,7 +372,7 @@
                 return;
             }
             var modalTpl = this.modalTpl;
-            var height = $('body')[0].clientHeight;
+            var height = getClient().h;
 
             //$("body")[0].insertAdjacentHTML("beforeEnd", modalTpl);
             $("body").append(modalTpl);
@@ -471,7 +483,9 @@
 
                 self.renderContent(content);
                 self.initPosition();
-                console.log('success',self.opts.success)
+                console.log(13,$element)
+                $($element).animate({ opacity: 1 }, 200);
+                //console.log('success',self.opts.success)
                 self.opts.success && self.opts.success();
 
             }).fail(function(msg){
@@ -537,7 +551,8 @@
             this.renderDialog();
         },
         syncUI:function(){
-            this.initPosition();
+            //this.initPosition();
+
         },
         initPosition:function(){
             var opts = this.opts,
@@ -562,7 +577,7 @@
             left =  Math.floor( (winWidth-width)*0.5 );
 
             
-            $element.style.display = 'block';
+            
            
             if(contentHeight){
                 $($element).find('[data-role="content"]')[0].style.height = contentHeight + 'px';
@@ -598,9 +613,18 @@
         },
         
         close:function(){
+            var $modal = this.$modal,$dialog = this.$element;
             this.removeEventListeners();
-            this.$element.parentNode.removeChild(this.$element);
-            this.$modal && this.$modal.parentNode.removeChild(this.$modal); 
+            if($dialog){
+                $($dialog).animate({
+                    opacity: 0},
+                    100, function() {
+                    $($dialog).remove();
+                    $($modal).remove();
+                });
+            }
+            //this.$element && this.$element.parentNode.removeChild(this.$element);
+            //this.$modal && this.$modal.parentNode.removeChild(this.$modal); 
             
         },
         destroy:function(){
@@ -783,14 +807,19 @@
     var Loading = {
 
         show:function(msg){
-            var msg = msg || '';
+            var msg = msg || '正在加载中...';
             var loadingTpl = '<div id="sb-loading-box"><div class="sb-loading-cont"><span class="sb-loading-txt">{msg}</span></div></div>';
+            if($('#sb-loading-box').length >0){
+                $('#sb-loading-box').find('.sb-loading-txt').text(msg)
+            }else{
+                var frag = substitute(loadingTpl,{msg:msg});
+                $('body').append(frag);
+                centerElement($('#sb-loading-box')[0],146,146);
+            }
+            //$('#sb-loading-box').remove();
+           
 
-            $('#sb-loading-box').remove();
-            var frag = substitute(loadingTpl,{msg:msg});
-            $('body').append(frag);
-
-            centerElement($('#sb-loading-box')[0],146,146);
+            
         },
         hide:function(){
             $('#sb-loading-box').remove();
@@ -859,7 +888,6 @@
             
         }
     }
-
 
 
     function QAQ(){
@@ -1051,7 +1079,7 @@
             if(jQuery(this).find('ul').length>0){
                 var panel = jQuery(this).find('ul');
             }else{
-                var panel = jQuery('<ul class="qaq-pagination pagination"></ul>').appendTo( jQuery(this) );
+                var panel = jQuery('<ul class=" pagination"></ul>').appendTo( jQuery(this) );
             }
             
             
