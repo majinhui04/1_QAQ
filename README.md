@@ -26,7 +26,10 @@ QAQ
         destroy     : true,//暂时无用
         header      : true,//暂时无用
         drag        : false,//是否可拖拽
-        winResize   : false//浏览器缩放时是否重新定位
+        winResize   : false,//浏览器缩放时是否重新定位
+        success:function(){
+            //dialog成功加载后 的调用函数
+        }
     });
     //关闭
     dialog.close();
