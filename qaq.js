@@ -1,85 +1,24 @@
 /*
-    
-
+    version:1.0.0
 */
 (function(){
-    function QAQ(){
+    //类继承
+    var extendClass = function(subClass, superClass){
+        var F = function(){};
 
-    }
-    window['QAQ'] = QAQ;
-})();
-/*  普通环境下调用：
-    var dialog = new QAQ.Dialog({
-        id          : '',//选填dialog的id
-        cls         : '.x1 .x2',dialog的类
-        backdrop    : false,//默认点击dialog背景时 不关闭dialog
-        keyboard    : true,//默认 按键盘escape 关闭dialog
-        title       : "对话框标题",
-        close       : true,//暂时无用
-
-        content     : '',//dialog的模板 3种模式  1. content:'<p>我是dialog的内容</p>' 2.contentUrl:'/views/dialog模板.html' 3.contentSelector:'#模板id'
-        
-        width       : 420,//选填
-        zIndex      : 999,//暂时无用
-        position    : 'center',//暂时无用
-        modal       : true, //是否显示遮罩
-        renderTo    : 'body',//暂时无用
-        destroy     : true,//暂时无用
-        header      : true,//暂时无用
-        drag        : false,//是否可拖拽
-        winResize   : false//浏览器缩放时是否重新定位
-    });
-    //关闭
-    dialog.close();
-
-    注 若模板是angularjs：
-    var dialog = new QAQ.AADialog({
-        compile:$compile//必填
-        scope:$scope//必填
-    });
-
-    //通用dialog
-    QAQ.MMDialg.alert('警告框')
-    QAQ.MMDialg.confirm('确认框',function(){//回调函数})
-    QAQ.MMDialg.info('消息框','消息类型')  消息类型: 1 success 2 error 3 warning 4 message
-
- */
-(function( QAQ ){
-    // 返回对象宽 高
-    var getClient = function(e)
-    {
-        if (e) {
-            w = e.clientWidth;
-            h = e.clientHeight;
-        } else {
-            w = (window.innerWidth) ? window.innerWidth : (document.documentElement && document.documentElement.clientWidth) ? document.documentElement.clientWidth : document.body.offsetWidth;
-            h = (window.innerHeight) ? window.innerHeight : (document.documentElement && document.documentElement.clientHeight) ? document.documentElement.clientHeight : document.body.offsetHeight;
-        }
-        return {w:w,h:h};
+        F.prototype = superClass.prototype;　　
+        subClass.prototype = new F();　　
+     
+        subClass.superclass = superClass.prototype;
+      
     };
-    //返回Url 参数对象 http://xxx.com?a=1&b=2 return {a:1,b:2}
-    
-    var getUrlParams = function(){
-        var href = location.href;
-        var arr = href.split('?');
-        var result = {};
-
-        if(!arr[1]){
-            return {};
-        }
-        //['aa=1','bb=2']
-        var paramsArr = arr[1].split('&');
-        for(var i = 0;i<paramsArr.length;i++){
-            var aa = paramsArr[i].split('=');
-            result[ aa[0] ] = aa[1];
-        }
-
-        return result;
-
-    };
+    /*
+        模板控制器
+    */
     var iTemplate = (function(){
         var template = function(){};
         template.prototype = {
+            // 针对数组数据 iTemplate.makeList('<p a="{a}">{b}</p>', [{a:1,b:2},{a:22,b:33}] ) return '<p a="1">2</p><p a="22">33</p>'
             makeList: function(tpl, arr, fn){
                 var res = [], $10 = [], reg = /{(.+?)}/g, json2 = {}, index = 0;
                 for(var el = 0;el<arr.length;el++){
@@ -93,11 +32,28 @@
                     );
                 }
                 return res.join('');
+            },
+            // 针对单个数据 iTemplate.substitute('<p a="{a}">{b}</p>',{a:1,b:2}) return '<p a="1">2</p>'
+            substitute: function(tpl, obj){
+                if (!(Object.prototype.toString.call(tpl) === '[object String]')) {
+                    return '';
+                }
+                if(!(Object.prototype.toString.call(obj) === '[object Object]' && 'isPrototypeOf' in obj)) {
+                    return tpl;
+                }
+                //    /\{([^{}]+)\}/g
+                return tpl.replace(/\{(.*?)\}/igm , function(match, key) {
+                    if(typeof obj[key] != 'undefined'){
+                        return obj[key];
+                    }
+                    return '';
+                });
             }
         }
         return new template();
     })();
-    var MCache = (function() {
+    // 缓存器
+    var Cache = (function() {
         var a = {};
             return {
                 set: function(b, c) {
@@ -114,32 +70,103 @@
                 }
             }
     } ());
-    //类继承
-    function extendClass(subClass, superClass){
-        var F = function(){};
+    // 工具库
+    var Util = {
+        // 获取url 参数 http://www.baidu.com/q?name=1&age=2 return {name:1,age:2}
+        getUrlParams : function(){
+            var href = location.href,
+                arr = href.split('?'),
+                result = {},paramsArr;
 
-        F.prototype = superClass.prototype;　　
-        subClass.prototype = new F();　　
-     
-        subClass.superclass = superClass.prototype;
-      
-    }
-    function substitute (str, obj) {
-        if (!(Object.prototype.toString.call(str) === '[object String]')) {
-            return '';
-        }
-      
-        if(!(Object.prototype.toString.call(obj) === '[object Object]' && 'isPrototypeOf' in obj)) {
-            return str;
-        }
-        //    /\{([^{}]+)\}/g
-        return str.replace(/\{(.*?)\}/igm , function(match, key) {
-            if(typeof obj[key] != 'undefined'){
-                return obj[key];
+            if(!arr[1]){
+                return result;
             }
-            return '';
-        });
+            // paramsArr ['aa=1','bb=2']
+            paramsArr = arr[1].split('&');
+            for(var i = 0; i<paramsArr.length; i++ ) {
+                var keys = paramsArr[i].split('=');
+                result[ keys[0] ] = keys[1];
+            }
+
+            return result;
+
+        }
+    };
+    // UI库
+    var UI = {
+        // 返回对象宽和高 没有对象则返回window的宽和高
+        getClient : function(e){
+            if (e) {
+                w = e.clientWidth;
+                h = e.clientHeight;
+            } else {
+                w = (window.innerWidth) ? window.innerWidth : (document.documentElement && document.documentElement.clientWidth) ? document.documentElement.clientWidth : document.body.offsetWidth;
+                h = (window.innerHeight) ? window.innerHeight : (document.documentElement && document.documentElement.clientHeight) ? document.documentElement.clientHeight : document.body.offsetHeight;
+            }
+            return {w:w,h:h};
+        }
+    };
+    function QAQ(){
+
     }
+    QAQ.Util = Util;
+    QAQ.UI = UI;
+    QAQ.Cache = Cache;
+    QAQ.iTemplate = iTemplate;
+    QAQ.substitute = iTemplate.substitute;
+    QAQ.getUrlParams = Util.getUrlParams;
+    QAQ.extendClass = extendClass;
+    QAQ.getClient = UI.getClient;
+    window['QAQ'] = QAQ;
+})();
+
+/*  
+    弹出框插件
+
+    var dialog = new QAQ.Dialog({
+        id: '',//选填dialog的id
+        cls: '.x1 .x2',//选填dialog的css类
+        backdrop: false,//默认点击dialog背景时 不关闭dialog
+        keyboard: true,//默认 按键盘escape 关闭dialog
+        title: "对话框标题",
+        content: '',//dialog的模板 3种模式  1. content:'<p>我是dialog的内容</p>' 2.contentUrl:'/views/dialog模板.html' 3.contentSelector:'#模板id'
+        width: 420,//选填
+        zIndex: 999,//
+        cache: true,//是否对模板进行缓存
+        modal: true, //是否显示遮罩
+        renderTo: 'body',//暂时无用
+        drag: false,//是否可拖拽
+        winResize: false,//浏览器缩放时是否重新定位
+        success: function(){
+            // element是 dialog 原生dom
+            var element = this.$element;
+            //关闭
+            this.close();
+        }
+    });
+    //关闭
+    dialog.close();
+
+    注 若模板包含angularjs
+    var dialog = new QAQ.AADialog({
+        compile:$compile//必填
+        scope:$scope//必填
+    });
+
+    //通用dialog
+    QAQ.MMDialg.alert('警告框')
+    QAQ.MMDialg.confirm('确认框',function(){//回调函数})
+    QAQ.MMDialg.info('消息框','消息类型')  消息类型: 1 success 2 error 3 warning 4 message
+
+     */
+(function( QAQ ){
+    
+    var getClient = QAQ.getClient;
+    var getUrlParams = QAQ.getUrlParams;
+    var MCache = QAQ.Cache;
+    var substitute = QAQ.substitute;
+    var extendClass = QAQ.extendClass;
+   
     function BindAsEventListener (object, fun) {
         return function(event) {
             return fun.call(object, (event || window.event));
@@ -167,20 +194,19 @@
         }
     };
 
-    function getWindowHeight(){
-        var ret = document.documentElement.clientHeight;
-        return ret;
-    }
-    function getWindowWidth(){
-        var ret = document.documentElement.clientWidth;
-        return ret;
-    }
     var Bind = function(object, fun) {
         return function() {
             return fun.apply(object, arguments);
         }
     }
-    //拖放程序
+    /*
+        拖拽插件
+        new SimpleDrag({
+            target:'运动对象',
+            drag:'拖拽的dom对象'
+        })
+    */
+    
     var SimpleDrag = function(){
         this.initialize.apply(this, arguments);
     };
@@ -214,6 +240,8 @@
         removeEventHandler(document, "mouseup", this._fS);
       }
     };
+
+    
     var dialogTpl = '<div class="sb_dialog_layer {_class_}" tabindex="-1" data-role="dialog"  id="{_id_}" >'+
                         '<div  class="sb_dialog_layer_main" data-role="main">'+
                             '<div class="sb_dialog_layer_title" data-role="header">'+
@@ -224,10 +252,10 @@
                             '<div class="sb_tip_button" data-role="footer">{_footer_}</div>'+
                         '</div>'+
                     '</div>';
+
     var Dialog = function(options){
         var modalTpl = '<div class="sb_dialog_modal" data-role="modal"><a data-role="backdrop" href="javascript:;" class="sb_dialog_modal_link"></a></div>';
         
-        this.tpl = dialogTpl;
         this.dialogTpl = dialogTpl;
         this.modalTpl = modalTpl;
         this.setOptions(options);
@@ -240,21 +268,19 @@
             var $element = this.$element;
             $($element).find('[data-role="content"]').html('<div style="padding:15px;text-align:center;">正在努力加载...</div>');
         },
+        // 加载内容模板
         loadContentTpl:function(){
-            var content = this.opts.content,contentUrl = this.opts.contentUrl,contentSelector = this.opts.contentSelector;
-            var deferred = $.Deferred(),tpl;
-            var $element = this.$element;
+            var content = this.opts.content,
+                contentUrl = this.opts.contentUrl,
+                contentSelector = this.opts.contentSelector,
+                cache = this.opts.cache,
+                deferred = $.Deferred(),tpl,
+                $element = this.$element;
            
-            if(typeof content!='undefined' && content!=''){
-                setTimeout(function(){
-                    deferred.resolve(content);
-                }, 30)
+            if(typeof contentUrl!='undefined'){
                 
-            }else if(typeof contentUrl!='undefined'){
-                
-                if( MCache.get(contentUrl) ){
-                    //console.log('MCache ',MCache.get(contentUrl),typeof MCache.get(contentUrl));
-                    //angular下 不延时加载 就会报 $apply has already...
+                if( MCache.get(contentUrl) && cache){
+                    //angular下 不延时加载 就会报 $apply has already digest
                     setTimeout(function(){
                         deferred.resolve(MCache.get(contentUrl));
                     }, 30)
@@ -285,8 +311,6 @@
                     });
                 }
                     
-
-
             }else if(typeof contentSelector!='undefined'){
                 tpl = $(contentSelector).html();
                 
@@ -295,6 +319,13 @@
                 }, 30)
                 //deferred.resolve(tpl);
 
+            }else if(typeof content === 'string'){
+                
+                setTimeout(function(){
+                    deferred.resolve(content);
+                }, 30)
+                
+            
             }else{
                 setTimeout(function(){
                     deferred.reject('获取内容失败');
@@ -302,32 +333,27 @@
                 
             }
 
-                
-
             return deferred.promise();
             
         },
         //设置参数
         setOptions:function(options){
-            var options = options || {},opts = {},value;
-            var timeStamp = new Date().valueOf();
-            var defaults = this.defaults = {
-                id:'dialog_'+timeStamp,
-                backdrop:false,//'static' for a backdrop which doesn't close the modal on click.
-                keyboard:true,//Closes the modal when escape key is pressed
-                title      : "对话框",
-                close      : true,//关闭按钮
-                content: '',
-                width      : 420,
-                zIndex     : 999,
-                position   : 'center',
-                modal      : true, 
-                renderTo     : 'body',
-                destroy:true,
-                header:true,//显示头部
-                winResize:false,//浏览器缩放时要不要重新定位
-                success:function(){}
-              /*  buttons     : 
+            var options = options || {},opts = {},value,timeStamp = new Date().valueOf(),
+                defaults = {
+                    id: 'dialog_'+timeStamp,
+                    backdrop: false,//'static' for a backdrop which doesn't close the modal on click.
+                    keyboard: true,//Closes the modal when escape key is pressed
+                    title: "对话框",
+                    content: '',
+                    zIndex:2014,
+                    cache: true,
+                    width: 420,
+                    modal: true, 
+                    destroy: true,
+                    winResize: false,
+                    buttons:[],
+                    success:function(){}
+                      /*  buttons: 
                      [
                         {
                             name  : '取消',
@@ -342,30 +368,17 @@
                             }
                         }
                     ]*/
-                
-            };
+                };
 
-            for(var param in  defaults){
-                opts[param] = defaults[param];
-            }
-            for(var param in  options){
-
-                opts[param] = options[param];
-            }
-            if(!opts.buttons){
-                opts.buttons = [];
-            }
+            opts = $.extend(defaults,options);
+            opts.buttons = opts.buttons || [];
             for(var i = 0; i<opts.buttons.length; i++){
                 if(typeof opts.buttons[i]['id'] === 'undefined'){
                     opts.buttons[i]['id'] = 'dialog-btn-'+timeStamp+i;
                 }
             }
-            
-            if(opts.dialogTpl){
-                this.dialogTpl = opts.dialogTpl;
-            }
+            this.dialogTpl = opts.dialogTpl?opts.dialogTpl:this.dialogTpl;
             this.opts = opts;
-            
            
         },
         init:function(){
@@ -375,27 +388,26 @@
         },
         //生成遮罩
         renderModal:function(){
-            var modal = this.opts.modal;
-            if(!modal){
+            if(!this.opts.modal){
                 return;
             }
-            var modalTpl = this.modalTpl;
-            var height = getClient().h;
+            var modalTpl = this.modalTpl,height = getClient().h;
 
-            //$("body")[0].insertAdjacentHTML("beforeEnd", modalTpl);
             $("body").append(modalTpl);
             
             this.$modal = $('div[data-role="modal"]')[0];
             this.$modal.style.height = height+'px';
+            this.$modal.style.zIndex = this.opts.zIndex-1;
         },
+        // 绑定 ESC键
         bindKeyboard:function(){
             var keyboard = this.opts.keyboard;
 
             this._bindKeyboard = BindAsEventListener(this,function(event){
                 var e = event ? event : window.event; 
-                var keyCode = e.which ? e.which : e.keyCode;     //获取按键值
+                var keyCode = e.which ? e.which : e.keyCode;//获取按键值
                 //console.log('keyCode:'+keyCode)
-                //console.dir(e)
+                // keycode 27 = Esc
                 if(keyCode === 27 ){
                     this.close();
                 }
@@ -416,11 +428,11 @@
             this.bindDrag();
             this.bindBackdrop();
         },
+        // 点击dialog区域外时 自动关闭
         bindBackdrop:function(){
             if(false === this.opts.modal){
                 return;
             }
-            var self = this;
             var $modal = this.$modal;
             this._onBackDropClick = BindAsEventListener(this,function(){
                 //console.log('backdrop ',this.opts.backdrop)
@@ -430,6 +442,7 @@
             });
             addEventHandler($($modal).find('[data-role="backdrop"]')[0],'click',this._onBackDropClick);
         },
+        // 绑定拖拽
         bindDrag:function(){
             var id = '#'+this.opts.id,drag = id +' [data-role="header"]';
 
@@ -461,8 +474,9 @@
                     
             };
         },
+        // 点击包含 data-role="close" 属性的dom  关闭dialog
         bindClose:function(){
-            var self=this,opts = this.opts,id=opts.id,$element = this.$element;
+            var self=this,opts = this.opts,$element = this.$element;
 
             this._close = BindAsEventListener(this,this.close);
             //addEventHandler( $($element).find('[data-role="close"]')[0],'click',this._close);
@@ -485,16 +499,16 @@
             addEventHandler(window,'resize',this._onWindowResize);
         },
         getContentHtml:function(){
-            var $element = this.$element;
-            var self = this;
+            var self = this, $element = this.$element;
+   
             this.loadContentTpl().done(function(content){
 
                 self.renderContent(content);
                 self.initPosition();
-                console.log(13,$element)
+          
                 $($element).animate({ opacity: 1 }, 200);
                 //console.log('success',self.opts.success)
-                self.opts.success && self.opts.success();
+                self.opts.success && self.opts.success.call(self);
 
             }).fail(function(msg){
                 self.showErrorMsg(msg);
@@ -568,25 +582,21 @@
                 height ,
                 contentHeight = opts.height,
                 dialogHeight = height+64,
-                winHeight = window.innerHeight || document.documentElement.clientHeight,
-                winWidth = window.innerWidth || document.documentElement.clientWidth,
-                scrollTop,zIndex,
+                winHeight = getClient().h,
+                winWidth = getClient().w,
+                scrollTop,zIndex = opts.zIndex,
                 top,left,
                 $element = this.$element;
 
-            if(!window._dlgBaseDepth){
-                window._dlgBaseDepth = 999;
-            }
+            
             //假如底部按钮为空
             if(opts.buttons.length === 0){
                 $($element).find('[data-role="footer"]')[0].style.display = 'none';
             }
-            zIndex = window._dlgBaseDepth++;
+           
+            
             left =  Math.floor( (winWidth-width)*0.5 );
 
-            
-            
-           
             if(contentHeight){
                 $($element).find('[data-role="content"]')[0].style.height = contentHeight + 'px';
             }
@@ -601,43 +611,28 @@
                 //top = Math.floor( (winHeight-height)*0.45+scrollTop );//position:absolute
                 top = Math.floor( (winHeight-height)*0.45 );//position:fixed
                 $element.style.top = top+'px';
-                /*console.log(' scrollTop ',scrollTop,' top ',top);
-                console.log('winHeight',winHeight,'height',height,'opts.height',opts.height)
-                console.log('top ',top)*/
-                
+               
             },50);
             
         },
-        hide:function(){
-            this.$element.style.display = 'none';
-            this.$modal && this.$modal.parentNode.removeChild(this.$modal);
-        },
-        show:function(){
-            var id = this.opts.id;
-
-            $('#'+id)[0].style.display = 'block';
-            this.renderModal();
-            this.initPosition();
-        },
-        
         close:function(){
-            var $modal = this.$modal,$dialog = this.$element;
+            var modal = this.$modal,dialog = this.$element;
+            
             this.removeEventListeners();
-            if($dialog){
-                $($dialog).animate({
+            if(dialog){
+                $(dialog).animate({
                     opacity: 0},
                     100, function() {
-                    $($dialog).remove();
-                    $($modal).remove();
+                    $(dialog).remove();
+                    $(modal).remove();
                 });
             }
-            //this.$element && this.$element.parentNode.removeChild(this.$element);
-            //this.$modal && this.$modal.parentNode.removeChild(this.$modal); 
             
         },
         destroy:function(){
 
         },
+        // 去除监听
         removeEventListeners:function(){
             var self = this;
             if(this.opts.keyboard){
@@ -650,9 +645,6 @@
             //removeEventHandler(window,'resize',this._onWindowResize);
         }
     };
-
-    window['Dialog'] = Dialog;
-
 
     //angularjs下的dialog
     var AADialog = function(options){
@@ -685,11 +677,7 @@
         $($element).find('[data-role="content"]').html(node);
         $scope.$apply();
     };
-    //window['AADialog'] = AADialog;
-
-    //
-    //
-    //
+   
     // 通用对框框
     var MMDialog = {
         alert:function(msg){
@@ -894,16 +882,12 @@
     };
 
     QAQ.ScreenMask = ScreenMask;
-    QAQ.iTemplate = iTemplate;
-    QAQ.getUrlParams = getUrlParams;
-    QAQ.substitute = substitute;
-    QAQ.extendClass = extendClass;
     QAQ.Dialog = Dialog;
     QAQ.AADialog = AADialog;
     QAQ.MMDialog = MMDialog;
     QAQ.Loading = Loading;
     QAQ.Message = AMessage;
-    QAQ.getClient = getClient;
+
 
    
 })( QAQ );
