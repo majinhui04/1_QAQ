@@ -153,10 +153,6 @@
         scope:$scope//必填
     });
 
-    //通用dialog
-    QAQ.MMDialg.alert('警告框')
-    QAQ.MMDialg.confirm('确认框',function(){//回调函数})
-    QAQ.MMDialg.info('消息框','消息类型')  消息类型: 1 success 2 error 3 warning 4 message
 
      */
 (function( QAQ ){
@@ -778,8 +774,9 @@
 
     };
     function centerElement($element,width,height){
-        var winHeight = window.innerHeight || document.documentElement.clientHeight,
-            winWidth = window.innerWidth || document.documentElement.clientWidth,
+        var win = getClient(),
+            winHeight = win.h,
+            winWidth = win.w,
             scrollTop,
             top,left;
             

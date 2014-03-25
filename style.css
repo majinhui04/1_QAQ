@@ -1,4 +1,5 @@
 .sb_dialog_layer {
+	outline: none;
 	opacity: 0;
 	filter:alpha(opacity=0);
 	position: fixed;
