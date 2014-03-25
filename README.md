@@ -5,11 +5,6 @@ QAQ.js
 3. **[消息提示框](#Message)**
 4. **[jQuery分页插件](#pagination)**
 
-
-This is the link to the [Top] [top] Link.  
-我在文章上部定义了:
-
-[top]: #aa "Top of the post."
 ## 文件路径
 
     <link rel="stylesheet" type="text/css" href="http://assets.haoyuyuan.com/vendor/plugins/igrow/qaq/1.0.0/style.css">
