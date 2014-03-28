@@ -242,7 +242,7 @@
                         '<div  class="sb_dialog_layer_main" data-role="main">'+
                             '<div class="sb_dialog_layer_title" data-role="header">'+
                                 '<h3 data-role="title">{_title_}</h3>'+
-                                '<a data-role="close" href="javascript:;" title="关闭" class="sb_dialog_btn_close"><span class="none">╳</span></a>'+
+                                '<a data-role="close" href="javascript:;" title="关闭" class="sb_dialog_btn_close"><span class="none">×</span></a>'+
                             '</div>'+
                             '<div class="sb_dialog_layer_cont" data-role="content">{_content_}</div>'+
                             '<div class="sb_tip_button" data-role="footer">{_footer_}</div>'+
@@ -388,12 +388,10 @@
                 return;
             }
             var modalTpl = this.modalTpl,height = getClient().h;
-
-            $("body").append(modalTpl);
-            
-            this.$modal = $('div[data-role="modal"]')[0];
-            this.$modal.style.height = height+'px';
-            this.$modal.style.zIndex = this.opts.zIndex-1;
+    
+            this.$modal = $(modalTpl).appendTo($("body"));
+            this.$modal[0].style.height = height+'px';
+            this.$modal[0].style.zIndex = this.opts.zIndex-1;
         },
         // 绑定 ESC键
         bindKeyboard:function(){
@@ -828,12 +826,12 @@
      */
     //
     //消息提示 msgtype: 1 success 2 error 3 warning 4 info
-    function AMessage(msg,msgtype) {
-        var timeStamp = new Date().valueOf();
+    function AMessage(msg,msgtype,opts) {
+        var timeStamp = new Date().valueOf(),opts = opts || {};
         var id = 'toast-'+timeStamp;
-        var msg = msg || '',msgtype = msgtype || 'info',interval = 5000,content;
+        var msg = msg || '',msgtype = msgtype || 'info',interval = opts.interval || 5000,content;
         var messageWrapTpl = '<div class="toast-top-full-width" id="toast-container"></div>';
-        var messageTpl = '<div style="" class="toast toast-{_msgtype_}" id="{_id_}" > <div class="toast-message">{_message_}</div> </div>';
+        var messageTpl = '<div style="" class="toast toast-{_msgtype_}" id="{_id_}" > <a class="toast-close" href="javascript:;" title="关闭">×</a> <div class="toast-message">{_message_}</div> </div>';
         var $container;
 
         //
@@ -844,7 +842,20 @@
         }
         content = substitute( messageTpl,{ _message_:msg,_id_:id,_msgtype_:msgtype} );
         $container.append(content);
+        // 绑定关闭
+        $container.find('.toast-close').bind('click',function(event){
+            var $target = $(event.currentTarget),$parent = $target.closest('.toast');
 
+            $parent.fadeOut(600, function() {
+                if( $('#toast-container .toast:visible').length == 0 ){
+                    $('#toast-container').remove();
+                }
+            });
+        });
+
+        if('success' === msgtype){
+            interval = opts.interval || 3000;
+        }
         (function(id,interval){
            
             var timer = setTimeout(function(){

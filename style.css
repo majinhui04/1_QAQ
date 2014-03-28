@@ -39,6 +39,19 @@
 	line-height: 31px;
 	width: 30px;
 }
+.sb_dialog_btn_close span{
+	font-size: 21px;
+	font-weight: bold;
+	color: #000;
+	text-shadow: 0 1px 0 #fff;
+	opacity: .2;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	filter: alpha(opacity=20);
+}
+.sb_dialog_btn_close:hover span{
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+}
 .sb_dialog_layer_title {
 	height: 31px;
 	border-bottom: 1px solid #E5E5E5;
@@ -236,6 +249,7 @@ button.bt_tip_hit, button.bt_tip_normal, button.bt_tip_forbid {
 	width: 100%;
 }
 #toast-container .toast{
+	position: relative;
 	width: 90%;
 	margin: 0 auto;
 	padding: 15px 15px 15px 50px;
@@ -253,9 +267,21 @@ button.bt_tip_hit, button.bt_tip_normal, button.bt_tip_forbid {
 .toast{
 	background-color: #999999;
 }
-#toast-container .toast-close{
+.toast-close{
+	text-decoration: none;
 	float:right;
 	cursor: pointer;
+	font-size: 21px;
+	font-weight: bold;
+	color: #000;
+	text-shadow: 0 1px 0 #fff;
+	opacity: .2;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	filter: alpha(opacity=20);
+}
+.toast-close:hover, .toast-close:focus {
+	opacity: .5;
+	filter: alpha(opacity=50);
 }
 #toast-container .toast-info{
 	background-color: #2f96b4;
