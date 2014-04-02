@@ -721,7 +721,7 @@
             new Dialog(options);
             
         },
-        info:function(msg,msgtype){
+        info:function(msg,msgtype,opts){
             var msg = msg || '';
             var msgtype = msgtype || '';
             var msgclass = '';
@@ -759,7 +759,7 @@
                     }
                 ]
             };
-
+            $.extend(options,opts || {} );
             new Dialog(options);
         }
 
