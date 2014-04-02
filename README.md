@@ -1,17 +1,12 @@
 QAQ.js
 =====
+
 1. **[对话框](#Dialog)**
 2. **[进度提示框](#Loading)**
 3. **[消息提示框](#Message)**
 4. **[jQuery分页插件](#pagination)**
 
-## 文件路径
-
-    <link rel="stylesheet" type="text/css" href="http://assets.haoyuyuan.com/vendor/plugins/igrow/qaq/1.0.0/style.css">
-
-    <script type="text/javascript" src="http://assets.haoyuyuan.com/vendor/plugins/igrow/qaq/1.0.0/qaq.js" ></script>
-
-## 1 对话框<em id='Dialog'></em> 
+## 1 对话框
 
 
 ### 调用
@@ -47,6 +42,33 @@ QAQ.js
 * `content` [可选] html模板字符串 
 * `contentUrl` [可选] 模板内容路径 推荐
 * `contentSelector` [可选] 模板的选择器 `#xxx` or `.xxx`
+* `buttons` [可选] 按钮 
+    
+        buttons:[{
+            name:'确定',
+            cls:'.btn-primary',//可选 自定义按钮css类 
+            click:function(){
+                var dialog = this;
+                
+                //do something
+                dialog.close();
+            }
+        },{
+            name:'取消',
+            cls:'.btn-default',//可选 自定义按钮css类
+            click:function(){
+                var dialog = this;
+                
+                dialog.close();
+            }
+        }]
+        // 默认提供了几种按钮样式
+        btn-default 默认 
+        btn-primary 主要 
+        btn-success 成功
+        btn-info 信息
+        btn-warning 警告
+        btn-danger 危险
 
 **注:  `content`,`contentUrl`,`contentSelector` 三者选其一**
 
@@ -58,6 +80,18 @@ QAQ.js
 ### 方法
 
 * `close` dialog关闭
+
+### 基于Dialog封装好的通用对话框
+
+    1 警告框 alert
+        QAQ.Dialog.alert('我警告你啊');
+    2 确认框 confirm
+        QAQ.Dialog.confirm('确认不要我了?',function(){
+            // 点击确认回调    
+            alert('你太狠心了')
+        });
+    3 消息提示 info
+        QAQ.Dialog.info('我只是个消息','info'); // type:1 success 2 error 3 info 4 warning 默认info
 
 ## 2 进度提示框
     QAQ.Loading.show('死命加载中...');
@@ -87,6 +121,3 @@ QAQ.js
 * `prev_show_always` [可选] [默认值:`true`] 是否显示上一页标签
 * `next_show_always` [可选] [默认值:`true`] 是否显示下一页标签
 * `callback` [可选] 点击页码后回调 `callback : function(page){// page为页码索引 }`
- 
-
-

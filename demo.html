@@ -15,7 +15,7 @@
     }
     </style>
 </head>
-<body >
+<body class="qaq">
        
 <h1>对话框 dialog</h1>
 <p>
@@ -45,6 +45,18 @@
     <h2>我是分页</h2>
     <div class="qaq-pagination"></div>
 </div>
+<div>
+    <h2>按钮</h2>
+    <div class="bs-example">
+      <button type="button" class="btn btn-default">默认</button>
+      <button type="button" class="btn btn-primary">主要</button>
+      <button type="button" class="btn btn-success">成功</button>
+      <button type="button" class="btn btn-info">信息</button>
+      <button type="button" class="btn btn-warning">警告</button>
+      <button type="button" class="btn btn-danger">危险</button>
+     
+    </div>
+</div>
 <script type="text/javascript">
 window.onload = function(){
     $('.qaq-pagination').pagination(20,{
@@ -72,17 +84,17 @@ window.onload = function(){
     }
     document.getElementById('b3').onclick = function(){
            
-        QAQ.MMDialog.confirm('确认不要我了?',function(){
+        QAQ.Dialog.confirm('确认不要我了?',function(){
             alert('你太狠心了')
-        });
+        },{modal:false});
     }
     document.getElementById('b1').onclick = function(){
            
-        QAQ.MMDialog.alert('alert');
+        QAQ.Dialog.alert('alert');
     }
     document.getElementById('b2').onclick = function(){
            
-        QAQ.MMDialog.info('lalallaa','message');
+        QAQ.Dialog.info('lalallaa','message');
     }
     window.showDialog=function(){
 
@@ -92,7 +104,7 @@ window.onload = function(){
             buttons:[
                 {
                     name  : '确定',
-                    cls:'.bt_tip_hit',
+                    cls:'.btn-primary',
                     click: function(){
                         alert('我要关了')
                         this.close();
@@ -101,7 +113,7 @@ window.onload = function(){
                 },
                 {
                     name  : '取消',
-                    cls:'.bt_tip_normal',
+                    cls:'.btn-default',
                     click: function(){
                         this.close();
                     }

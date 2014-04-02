@@ -238,11 +238,11 @@
     };
 
     
-    var dialogTpl = '<div class="sb_dialog_layer {_class_}" tabindex="-1" data-role="dialog"  id="{_id_}" >'+
+    var dialogTpl = '<div class="qaq sb_dialog_layer {_class_}" tabindex="-1" data-role="dialog"  id="{_id_}" >'+
                         '<div  class="sb_dialog_layer_main" data-role="main">'+
-                            '<div class="sb_dialog_layer_title" data-role="header">'+
+                            '<div class="sb_dialog_layer_title qaq-clearfix" data-role="header">'+
                                 '<h3 data-role="title">{_title_}</h3>'+
-                                '<a data-role="close" href="javascript:;" title="关闭" class="sb_dialog_btn_close"><span class="none">×</span></a>'+
+                                '<a data-role="close" href="javascript:;" title="关闭" class="sb_dialog_btn_close">×</a>'+
                             '</div>'+
                             '<div class="sb_dialog_layer_cont" data-role="content">{_content_}</div>'+
                             '<div class="sb_tip_button" data-role="footer">{_footer_}</div>'+
@@ -522,7 +522,7 @@
                 buttons = opts.buttons,
                 dialogTpl = this.dialogTpl,
                 obj = {},footer='',btnFrag = [],btn,btnStr,cls,
-                btnTpl = '<button id="{id}" class="sb-dialog-btn {cls}">{name}</button>';
+                btnTpl = '<button id="{id}" class="btn {cls}">{name}</button>';
         
             for(var i=0;i<buttons.length;i++){
                 btn = buttons[i];
@@ -674,7 +674,7 @@
    
     // 通用对框框
     var MMDialog = {
-        alert:function(msg){
+        alert:function(msg,opts){
             var msg = msg || '';
             var content = '<div class="sb-alert-box">'+msg+'</div>';
             var options = {
@@ -683,19 +683,17 @@
                 buttons:[
                     {
                         name  : '确定',
-                        cls:'.bt_tip_hit',
+                        cls:'.btn-primary',
                         click: function(){
                             this.close();
                         }
                     }
                 ]
             };
-
+            $.extend(options,opts || {} );
             new Dialog(options);
         },
-        confirm:function(msg,callback,params){
-            var params = params || {};
-            var ret = false;
+        confirm:function(msg,callback,opts){
             var msg = msg || '';
             var content = '<div class="sb-confirm-box"><span class="sb-confirm-icon"></span>'+msg+'</div>';
             var options = {
@@ -704,7 +702,7 @@
                 buttons:[
                     {
                         name  : '确定',
-                        cls:'.bt_tip_hit',
+                        cls:'.btn-primary',
                         click: function(){
                             this.close();
                             callback && callback();
@@ -712,19 +710,14 @@
                     },
                     {
                         name  : '取消',
-                        cls:'.bt_tip_normal',
+                        cls:'.btn-default',
                         click: function(){
                             this.close();
                         }
                     }
                 ]
             };
-            if(params.id){
-                options.id = params.id;
-            }
-            if(params.cls){
-                options.cls = params.cls;
-            }
+            $.extend(options,opts || {} );
             new Dialog(options);
             
         },
@@ -743,7 +736,7 @@
                 case 'success':
                     msgclass = 'sb-icon-success';
                     break;
-                case 'message':
+                case 'info':
                     msgclass = 'sb-icon-message';
                     break;
                 default:
@@ -759,7 +752,7 @@
                 buttons:[
                     {
                         name  : '确定',
-                        cls:'.bt_tip_hit',
+                        cls:'.btn-primary',
                         click: function(){
                             this.close();
                         }
@@ -888,7 +881,7 @@
             jQuery(selector).find('.qaq-screen-mask').remove();
         }
     };
-
+    
     QAQ.ScreenMask = ScreenMask;
     QAQ.Dialog = Dialog;
     QAQ.AADialog = AADialog;
@@ -896,7 +889,7 @@
     QAQ.Loading = Loading;
     QAQ.Message = AMessage;
 
-
+    $.extend(QAQ.Dialog,MMDialog);
    
 })( QAQ );
 
